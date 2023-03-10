@@ -1,0 +1,19 @@
+ref - 1:07
+
+create venv:
+- py -3 -m venv <name>
+
+change venv on terminal
+- venv\Scripts\activate.bat
+
+change venv in vscode
+- ctrl+shift-p -> python select interpreter
+
+install fastapi
+- pip install fastapi[all]
+
+run app
+- uvicorn main:app --reload
+
+versions
+- openapi 3.0.2 -> fastapi 0.1.0
