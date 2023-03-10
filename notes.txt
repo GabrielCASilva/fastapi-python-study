@@ -1,4 +1,4 @@
-ref - 1:07
+ref - 1:28
 
 create venv:
 - py -3 -m venv <name>
@@ -17,3 +17,9 @@ run app
 
 versions
 - openapi 3.0.2 -> fastapi 0.1.0
+
+CRUD
+- Create -> post
+- Read -> get
+- Update -> put (update all data) or patch (update especifc data)
+- Delete -> delete
