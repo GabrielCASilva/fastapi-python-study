@@ -90,3 +90,23 @@ def patch_post(id: int, payload: PatchPost):
     my_posts[index]["update_at"] = date.today().strftime("%d/%m/%Y")
 
     return {"message": "post was successfully patched"}
+
+
+@app.put("/posts/{id}")
+def update_post(id: int, payload: Post):
+    post = payload.dict()
+    index = find_index_post(id)
+
+    if index == None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"post with id: {id} was not found",
+        )
+
+    for key, value in post.items():
+        if value is not None:
+            my_posts[index][key] = value
+
+    my_posts[index]["update_at"] = date.today().strftime("%d/%m/%Y")
+
+    return {"message": "post was successfully update"}

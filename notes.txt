@@ -23,3 +23,7 @@ CRUD
 - Read -> get
 - Update -> put (update all data) or patch (update especifc data)
 - Delete -> delete
+
+Docs
+- fastapi generates documentations automatically
+- see the docs in "/docs"
