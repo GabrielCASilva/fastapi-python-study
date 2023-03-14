@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Response, status, HTTPException
-from schemas import Post, PatchPost
+from app.schemas import Post, PatchPost
 from random import randrange
 from datetime import date
 
