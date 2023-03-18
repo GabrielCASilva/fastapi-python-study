@@ -10,7 +10,7 @@ class Post(BaseModel):
     content: str
     author: str
     published: bool = True  # optional field with default value
-    rating: Optional[int] = None
+    like: Optional[int] = None
     created_at: Optional[int] = None
 
 

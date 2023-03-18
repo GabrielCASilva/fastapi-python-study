@@ -1,4 +1,4 @@
-ref - 2:14
+ref - 4:08:00
 
 create venv:
 - py -3 -m venv <name>
@@ -13,7 +13,7 @@ install fastapi
 - pip install fastapi[all]
 
 run app
-- uvicorn main:app --reload
+- uvicorn app.main:app --reload
 
 versions
 - openapi 3.0.2 -> fastapi 0.1.0
@@ -27,3 +27,7 @@ CRUD
 Docs
 - fastapi generates documentations automatically
 - see the docs in "/docs"
+
+Database
+- Postgress - pgAdmin4
+- connection with database -> psycopg2

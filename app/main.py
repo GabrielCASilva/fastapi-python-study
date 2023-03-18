@@ -2,12 +2,32 @@ from fastapi import FastAPI, Response, status, HTTPException
 from app.schemas import Post, PatchPost
 from random import randrange
 from datetime import date
-
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import time
 
 app = FastAPI()
 
 
 my_posts = []
+
+while True:
+    try:
+        conn = psycopg2.connect(
+            host="",
+            database="",
+            user="",
+            password="",
+            cursor_factory=RealDictCursor,
+        )
+        # RealDictCursor -> column name
+        cursor = conn.cursor()
+        print("Database connection was succesfull")
+        break
+    except Exception as error:
+        print("Connection to database failed")
+        print("Error: ", error)
+        time.sleep(3)
 
 
 def find_post(id):
