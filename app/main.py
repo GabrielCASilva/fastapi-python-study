@@ -8,7 +8,6 @@ import time
 
 app = FastAPI()
 
-
 my_posts = []
 
 while True:
@@ -49,12 +48,15 @@ def root():
 
 @app.get("/posts")
 def get_posts():
-    return {"data": my_posts}
+    cursor.execute("""SELECT * FROM posts""")
+    posts = cursor.fetchall()
+    return {"data": posts}
 
 
 @app.get("/posts/{id}")
 def get_post(id: int):
-    post = find_post(int(id))
+    cursor.execute("""SELECT * FROM posts WHERE id = %s""", (str(id)))
+    post = cursor.fetchone()
 
     if post == None:
         raise HTTPException(
@@ -62,52 +64,61 @@ def get_post(id: int):
             detail=f"post with id: {id} was not found",
         )
 
-    return {f"{id}": post}
+    return {"post_detail": post}
 
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-def post_posts(payload: Post):
-    post_dict = payload.dict()
+def post_posts(post: Post):
 
-    post_dict["created_at"] = date.today().strftime("%d/%m/%Y")
-    post_dict["id"] = randrange(0, 1000000)
+    cursor.execute(
+        """INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * """,
+        (post.title, post.content, post.published),
+    )
 
-    my_posts.append(post_dict)
+    conn.commit()  # push changes to database
 
-    return {"data": post_dict}
+    new_post = cursor.fetchone()
+
+    return {"data": new_post}
 
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id: int):
-    post = find_post(int(id))
 
-    if post == None:
+    cursor.execute("""DELETE FROM posts WHERE id = %s RETURNING *""", (str(id)))
+    deleted_post = cursor.fetchone()
+    conn.commit()
+
+    if deleted_post == None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"post with id: {id} was not found",
         )
-
-    my_posts.remove(post)
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.patch("/posts/{id}")
-def patch_post(id: int, payload: PatchPost):
-    post = payload.dict()
-    index = find_index_post(id)
+def patch_post(id: int, post: PatchPost):
+    cursor.execute(
+        """UPDATE posts SET title = %s, content = %s, published = %s, updated_at = %s WHERE id = %s RETURNING *""",
+        (
+            post.title,
+            post.content,
+            post.published,
+            str(date.today().strftime("%d/%m/%Y")),
+            str(id),
+        ),
+    )
 
-    if index == None:
+    updated_post = cursor.fetchone()
+    conn.commit()
+
+    if updated_post == None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"post with id: {id} was not found",
         )
-
-    for key, value in post.items():
-        if value is not None:
-            my_posts[index][key] = value
-
-    my_posts[index]["update_at"] = date.today().strftime("%d/%m/%Y")
 
     return {"message": "post was successfully patched"}
 

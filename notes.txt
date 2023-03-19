@@ -1,4 +1,4 @@
-ref - 4:08:00
+ref - 4:31:20
 
 create venv:
 - py -3 -m venv <name>
