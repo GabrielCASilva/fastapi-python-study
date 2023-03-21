@@ -100,8 +100,56 @@ def delete_post(id: int):
 
 @app.patch("/posts/{id}")
 def patch_post(id: int, post: PatchPost):
+    cursor.execute("""SELECT * FROM posts WHERE id = %s""", (str(id)))
+    selected_post = cursor.fetchall()
+
+    if selected_post == None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"post with id: {id} was not found",
+        )
+
+    # transforming tuple in dict
+    columns = [col[0] for col in cursor.description]
+
+    dict_post = {}
+    for i in range(len(columns)):
+        dict_post[columns[i]] = selected_post[0][columns[i]]
+
+    # see with value the client sand to api and apply in dict_post
+    for key, value in post.dict().items():
+        if value:
+            dict_post[key] = value
+
     cursor.execute(
-        """UPDATE posts SET title = %s, content = %s, published = %s, updated_at = %s WHERE id = %s RETURNING *""",
+        """UPDATE posts SET title = %s, content = %s, published = %s, updated_at = %s WHERE id = %s""",
+        (
+            dict_post["title"],
+            dict_post["content"],
+            dict_post["published"],
+            str(date.today().strftime("%d/%m/%Y")),
+            str(id),
+        ),
+    )
+
+    conn.commit()
+
+    return {"message": "post was successfully patched"}
+
+
+@app.put("/posts/{id}")
+def update_post(id: int, post: Post):
+    cursor.execute("""SELECT * FROM posts WHERE id = %s""", (str(id)))
+    selected_post = cursor.fetchone()
+
+    if selected_post == None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"post with id: {id} was not found",
+        )
+
+    cursor.execute(
+        """UPDATE posts SET title = %s, content = %s, published = %s, updated_at = %s WHERE id = %s""",
         (
             post.title,
             post.content,
@@ -111,33 +159,6 @@ def patch_post(id: int, post: PatchPost):
         ),
     )
 
-    updated_post = cursor.fetchone()
     conn.commit()
-
-    if updated_post == None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"post with id: {id} was not found",
-        )
-
-    return {"message": "post was successfully patched"}
-
-
-@app.put("/posts/{id}")
-def update_post(id: int, payload: Post):
-    post = payload.dict()
-    index = find_index_post(id)
-
-    if index == None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"post with id: {id} was not found",
-        )
-
-    for key, value in post.items():
-        if value is not None:
-            my_posts[index][key] = value
-
-    my_posts[index]["update_at"] = date.today().strftime("%d/%m/%Y")
 
     return {"message": "post was successfully update"}
