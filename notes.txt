@@ -1,4 +1,4 @@
-ref - 4:31:20
+ref - 4:47:00
 
 create venv:
 - py -3 -m venv <name>
@@ -31,3 +31,6 @@ Docs
 Database
 - Postgress - pgAdmin4
 - connection with database -> psycopg2
+
+ORM
+- SQLAlchemy
